@@ -11,6 +11,7 @@ class StaffProfile(models.Model):
         ('receptionist', 'Receptionist'),
         ('pharmacist', 'Pharmacist'),
         ('lab_technician', 'Lab Technician'),
+        ('radiographer', 'Radiographer'),
         ('accountant', 'Accountant'),
     ]
     

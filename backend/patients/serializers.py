@@ -15,6 +15,10 @@ class PatientListSerializer(serializers.ModelSerializer):
             'assigned_doctor', 'doctor_name', 'symptoms',
             'lab_test_requested', 'lab_test_results',
             'is_active', 'created_at',
+            'lab_test_requested', 'lab_test_results',
+            'imaging_requested', 'imaging_results',
+            'lab_test_requested', 'lab_test_results',
+            'imaging_requested', 'imaging_results',
         ]
     
     def get_age(self, obj):

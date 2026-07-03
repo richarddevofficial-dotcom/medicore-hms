@@ -14,11 +14,15 @@ from rooms.views import WardViewSet, RoomViewSet, BedViewSet
 from pharmacy.views import MedicineViewSet
 from appointments.views import AppointmentViewSet
 from billing.views import BillViewSet
-from reports.views import dashboard_report
+from reports.views import dashboard_report, detailed_report
 from pharmacy.views import PrescriptionViewSet
 from insurance.views import InsuranceCompanyViewSet, InsuranceClaimViewSet
 from reports.views import dashboard_report, staff_report, reception_report, cashier_report, pharmacy_report, lab_report
-
+from imaging.views import ImagingTestViewSet
+from hospitals.models import Hospital
+from hospitals.serializers import HospitalSerializer
+from reports.views import dashboard_report, staff_report, reception_report, cashier_report, pharmacy_report, lab_report, detailed_report
+from reports.views import dashboard_charts
     
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -50,6 +54,19 @@ def login_view(request):
         })
     return Response({'error': 'Invalid credentials'}, status=401)
 
+@api_view(['GET', 'PUT'])
+@permission_classes([AllowAny])
+def hospital_settings(request):
+    hospital = Hospital.objects.first()
+    if request.method == 'GET':
+        return Response(HospitalSerializer(hospital).data)
+    elif request.method == 'PUT':
+        serializer = HospitalSerializer(hospital, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=400)
+
 router = DefaultRouter()
 router.register(r'hospitals', HospitalViewSet)
 router.register(r'patients', PatientViewSet)
@@ -64,16 +81,24 @@ router.register(r'bills', BillViewSet)
 router.register(r'prescriptions', PrescriptionViewSet)
 router.register(r'insurance-companies', InsuranceCompanyViewSet)
 router.register(r'insurance-claims', InsuranceClaimViewSet)
+router.register(r'imaging-tests', ImagingTestViewSet)
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    
+    # Custom URLs - MUST be before the router
     path('api/v1/hospitals/login/', login_view, name='login'),
+    path('api/v1/hospitals/settings/', hospital_settings, name='hospital-settings'),
     path('api/v1/reports/dashboard/', dashboard_report, name='dashboard-report'),
-    path('api/v1/', include(router.urls)),
     path('api/v1/reports/staff/', staff_report, name='staff-report'),
     path('api/v1/reports/reception/', reception_report, name='reception-report'),
     path('api/v1/reports/cashier/', cashier_report, name='cashier-report'),
     path('api/v1/reports/pharmacy/', pharmacy_report, name='pharmacy-report'),
     path('api/v1/reports/lab/', lab_report, name='lab-report'),
+    path('api/v1/reports/detailed/', detailed_report, name='detailed-report'),
+    path('api/v1/reports/dashboard-charts/', dashboard_charts, name='dashboard-charts'),
+    
+    # Router LAST - catches any remaining /api/v1/ routes
+    path('api/v1/', include(router.urls)),
 ]

@@ -12,16 +12,18 @@ class Patient(models.Model):
     BLOOD_GROUPS = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']
     
     STATUS_CHOICES = [
-        ('registered', 'Registered'),
-        ('waiting', 'Waiting for Doctor'),
-        ('in_consultation', 'In Consultation'),
-        ('lab_requested', 'Lab Test Requested'),
-        ('lab_in_progress', 'Lab Test In Progress'),
-        ('lab_completed', 'Lab Results Ready'),
-        ('treated', 'Treated'),
-        ('admitted', 'Admitted'),
-        ('discharged', 'Discharged'),
-    ]
+    ('registered', 'Registered'),
+    ('waiting', 'Waiting for Doctor'),
+    ('in_consultation', 'In Consultation'),
+    ('lab_requested', 'Lab Test Requested'),
+    ('lab_in_progress', 'Lab Test In Progress'),
+    ('lab_completed', 'Lab Results Ready'),
+    ('imaging_requested', 'Imaging Requested'),
+    ('imaging_completed', 'Imaging Completed'),
+    ('treated', 'Treated'),
+    ('admitted', 'Admitted'),
+    ('discharged', 'Discharged'),
+]
     
     hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, related_name='patients')
     mrn = models.CharField(max_length=20)
@@ -73,6 +75,10 @@ class Patient(models.Model):
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    # Imaging
+    imaging_requested = models.TextField(blank=True, help_text="Imaging tests requested by doctor")
+    imaging_results = models.TextField(blank=True, help_text="Results from imaging")
 
     class Meta:
         unique_together = ['hospital', 'mrn']

@@ -27,14 +27,4 @@ class HospitalViewSet(viewsets.ModelViewSet):
             'hospital_name': hospital.name,
         }, status=status.HTTP_201_CREATED)
     
-    @action(detail=False, methods=['get', 'put'])
-    def settings(self, request):
-        hospital = Hospital.objects.first()
-        if request.method == 'GET':
-            return Response(HospitalSerializer(hospital).data)
-        elif request.method == 'PUT':
-            serializer = HospitalSerializer(hospital, data=request.data, partial=True)
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data)
-            return Response(serializer.errors, status=400)
+   
