@@ -9,31 +9,19 @@ class UserSerializer(serializers.ModelSerializer):
 
 class StaffSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
-    name = serializers.SerializerMethodField()
-    department_name = serializers.SerializerMethodField()
+    department_name = serializers.CharField(source='department.name', read_only=True)
     
     class Meta:
         model = StaffProfile
-        fields = [
-            'id', 'user', 'name', 'hospital', 'department', 'department_name',
-            'role', 'specialization', 'license_number', 'consultation_fee',
-            'max_patients_per_day', 'phone', 'is_active', 'created_at', 'updated_at'
-        ]
+        fields = '__all__'
         read_only_fields = ['hospital', 'created_at', 'updated_at']
-    
-    def get_name(self, obj):
-        return f"{obj.user.first_name} {obj.user.last_name}"
-    
-    def get_department_name(self, obj):
-        if obj.department:
-            return obj.department.name
-        return None
 
 class StaffCreateSerializer(serializers.ModelSerializer):
     first_name = serializers.CharField(write_only=True)
     last_name = serializers.CharField(write_only=True)
     email = serializers.EmailField(write_only=True)
     password = serializers.CharField(write_only=True, min_length=6)
+    department = serializers.IntegerField(required=False, allow_null=True)
     
     class Meta:
         model = StaffProfile
@@ -49,8 +37,10 @@ class StaffCreateSerializer(serializers.ModelSerializer):
         email = validated_data.pop('email')
         password = validated_data.pop('password')
         
-        from hospitals.models import Hospital
-        hospital = Hospital.objects.first()
+        # Handle empty department
+        department = validated_data.pop('department', None)
+        if department == '' or department == 0:
+            department = None
         
         user = User.objects.create_user(
             username=email,
@@ -62,7 +52,7 @@ class StaffCreateSerializer(serializers.ModelSerializer):
         
         staff = StaffProfile.objects.create(
             user=user,
-            hospital=hospital,
+            department_id=department,
             **validated_data
         )
         

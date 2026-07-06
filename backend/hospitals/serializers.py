@@ -1,9 +1,13 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
+from django.utils import timezone
+from datetime import timedelta
 from .models import Hospital
 from staff.models import StaffProfile
 
 class HospitalSerializer(serializers.ModelSerializer):
+    days_left = serializers.IntegerField(read_only=True)
+    
     class Meta:
         model = Hospital
         fields = '__all__'
@@ -11,7 +15,7 @@ class HospitalSerializer(serializers.ModelSerializer):
 
 class HospitalRegistrationSerializer(serializers.ModelSerializer):
     admin_email = serializers.EmailField(write_only=True)
-    admin_password = serializers.CharField(write_only=True, min_length=8)
+    admin_password = serializers.CharField(write_only=True, min_length=6)
     admin_first_name = serializers.CharField(write_only=True)
     admin_last_name = serializers.CharField(write_only=True)
     
@@ -31,8 +35,12 @@ class HospitalRegistrationSerializer(serializers.ModelSerializer):
         
         from django.utils.text import slugify
         validated_data['slug'] = slugify(validated_data['name'])
+        validated_data['trial_start'] = timezone.now()
+        validated_data['trial_end'] = timezone.now() + timedelta(days=14)
+        
         hospital = Hospital.objects.create(**validated_data)
         
+        # Create admin user
         user = User.objects.create_user(
             username=admin_email,
             email=admin_email,

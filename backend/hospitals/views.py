@@ -27,4 +27,22 @@ class HospitalViewSet(viewsets.ModelViewSet):
             'hospital_name': hospital.name,
         }, status=status.HTTP_201_CREATED)
     
-   
+    @action(detail=False, methods=['get'])
+    def my_hospital(self, request):
+        if hasattr(request.user, 'staff_profile'):
+            hospital = request.user.staff_profile.hospital
+            return Response({
+                'id': hospital.id,
+                'name': hospital.name,
+                'email': hospital.email,
+                'phone': hospital.phone,
+                'subscription_plan': hospital.subscription_plan,
+                'subscription_status': hospital.subscription_status,
+                'trial_end': hospital.trial_end,
+                'days_left': hospital.days_left,
+                'is_trial_active': hospital.is_trial_active,
+                'primary_color': hospital.primary_color,
+                'secondary_color': hospital.secondary_color,
+                'custom_domain': hospital.custom_domain,
+            })
+        return Response({'error': 'Not found'}, status=404)

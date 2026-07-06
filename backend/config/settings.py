@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from datetime import timedelta
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -32,6 +33,7 @@ INSTALLED_APPS = [
     'reports',
     'auditlog',
     'imaging',
+    'import_export',
  ]
 
 MIDDLEWARE = [
